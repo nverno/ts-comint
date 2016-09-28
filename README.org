@@ -2,7 +2,7 @@
 Run a TypeScript interpreter in an inferior process window
 
 This repo is directly forked from
-[js-comint](https://github.com/redguardtoo/js-comint) to support
+[[https://github.com/redguardtoo/js-comint][js-comint]] to support
 TypeScript instead.
 
 The first release, [[http://js-comint-el.sourceforge.net/][js-comint 0.0.1, is hosted on sourceforge]] but it has not been updated for five years.
