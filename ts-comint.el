@@ -1,4 +1,4 @@
-;;; ts-comint.el --- Run a JavaScript interpreter in an inferior process window.
+;;; ts-comint.el --- Run a Typescript interpreter in an inferior process window.
 
 ;;; Copyright (C) 2008 Paul Huff
 ;;; Copyright (C) 2015 Stefano Mazzucco
@@ -9,7 +9,7 @@
 ;;; Version: 0.0.1
 ;;; URL: https://github.com/josteink/ts-comint
 ;;; Package-Requires: ()
-;;; Keywords: javascript, node, inferior-mode, convenience
+;;; Keywords: typescript, node, inferior-mode, convenience
 
 ;; This file is NOT part of GNU Emacs.
 
@@ -49,8 +49,8 @@
 ;;  Away you go.
 
 ;;  You can add  the following couple of lines to your .emacs to take advantage of
-;;  cool keybindings for sending things to the javascript interpreter inside
-;;  of Steve Yegge's most excellent js2-mode.
+;;  cool keybindings for sending things to the typescript interpreter inside
+;;  of typescript-mode:
 ;;
 ;;   (add-hook 'typescript-mode-hook
 ;;             (lambda ()
@@ -65,11 +65,11 @@
 (require 'comint)
 
 (defgroup inferior-ts nil
-  "Run a javascript process in a buffer."
+  "Run a Typescript process in a buffer."
   :group 'inferior-ts)
 
 (defcustom inferior-ts-program-command "tsun"
-  "JavaScript interpreter."
+  "Typescript interpreter."
   :group 'inferior-ts)
 
 (defcustom inferior-ts-program-arguments nil
@@ -166,7 +166,7 @@ is run).
   (run-ts inferior-ts-program-command t)
   (comint-send-region inferior-ts-buffer start end)
   ;; (comint-send-string inferior-ts-buffer "\n")
-  (switch-to-js inferior-ts-buffer))
+  (switch-to-ts inferior-ts-buffer))
 
 ;;;###autoload
 (defun ts-send-last-sexp-and-go ()
@@ -205,7 +205,7 @@ is run).
 
 ;;;###autoload
 (defun ts-load-file (filename)
-  "Load a file in the javascript interpreter."
+  "Load a file in the Typescript interpreter."
   (interactive "f")
   (let ((filename (expand-file-name filename)))
     (run-ts inferior-ts-program-command t)
@@ -213,16 +213,16 @@ is run).
 
 ;;;###autoload
 (defun ts-load-file-and-go (filename)
-  "Load a file in the javascript interpreter."
+  "Load a file in the Typescript interpreter."
   (interactive "f")
   (let ((filename (expand-file-name filename)))
     (run-ts inferior-ts-program-command t)
     (comint-send-string inferior-ts-buffer (ts--guess-load-file-cmd filename))
-    (switch-to-js inferior-ts-buffer)))
+    (switch-to-ts inferior-ts-buffer)))
 
 ;;;###autoload
-(defun switch-to-js (eob-p)
-  "Switch to the javascript process buffer.
+(defun switch-to-ts (eob-p)
+  "Switch to the Typescript process buffer.
 With argument, position cursor at end of buffer."
   (interactive "P")
   (if (and inferior-ts-buffer (get-buffer inferior-ts-buffer))
@@ -240,7 +240,7 @@ With argument, position cursor at end of buffer."
 
 ;;;###autoload
 (define-derived-mode inferior-ts-mode comint-mode "Inferior Typescript"
-  "Major mode for interacting with an inferior javascript process.
+  "Major mode for interacting with an inferior Typescript process.
 
 The following commands are available:
 \\{inferior-ts-mode-map}
@@ -252,7 +252,7 @@ inferior-ts-mode-hook (in that order).
 
 You can send text to the inferior Typescript process from other buffers containing
 Typescript source.
-    switch-to-js switches the current buffer to the Typescript process buffer.
+    switch-to-ts switches the current buffer to the Typescript process buffer.
     ts-send-region sends the current region to the Typescript process.
 "
   :group 'inferior-ts
