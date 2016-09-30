@@ -32,7 +32,7 @@ To use it in its current from, place the ts-comint.el somewhere say "~/mylisp/".
 Insert below code to "~/.emacs.d/init.el",
 #+BEGIN_SRC elisp
 (add-to-list 'load-path "~/mylisp/")
-(require 'js-comint)
+(require 'ts-comint)
 #+END_SRC
 
 * Usage
