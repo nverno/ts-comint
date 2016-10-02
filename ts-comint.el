@@ -64,28 +64,28 @@
 
 (require 'comint)
 
-(defgroup inferior-ts nil
+(defgroup ts-comint nil
   "Run a Typescript process in a buffer."
-  :group 'inferior-ts)
+  :group 'languages)
 
-(defcustom inferior-ts-program-command "tsun"
+(defcustom ts-comint-program-command "tsun"
   "Typescript interpreter."
-  :group 'inferior-ts)
+  :group 'ts-comint)
 
-(defcustom inferior-ts-program-arguments nil
+(defcustom ts-comint-program-arguments nil
   "List of command line arguments to pass to the Typescript interpreter."
-  :group 'inferior-ts)
+  :group 'ts-comint)
 
-(defcustom inferior-ts-mode-hook nil
+(defcustom ts-comint-mode-hook nil
   "*Hook for customizing inferior-ts mode."
   :type 'hook
-  :group 'inferior-ts)
+  :group 'ts-comint)
 
-(defcustom inferior-ts-mode-ansi-color t
+(defcustom ts-comint-mode-ansi-color t
   "Use ansi-colors for inferior Typescript mode."
-  :group 'inferior-ts)
+  :group 'ts-comint)
 
-(defvar inferior-ts-buffer nil
+(defvar ts-comint-buffer nil
   "Name of the inferior Typescript buffer.")
 
 (defvar ts-prompt-regexp "^\\(?:> \\)"
@@ -94,7 +94,7 @@
 
 (defun ts--is-nodejs ()
   (string= "node"
-           (substring-no-properties inferior-ts-program-command -4 nil)))
+           (substring-no-properties ts-comint-program-command -4 nil)))
 
 (defun ts--guess-load-file-cmd (filename)
   (let ((cmd (concat "require(\"" filename "\")\n")))
@@ -108,8 +108,8 @@
   "Run an inferior Typescript process, input and output via buffer `*ts*'.
 If there is a process already running in `*ts*', switch to that buffer.
 With argument, allows you to edit the command line (default is value
-of `inferior-ts-program-command').
-Runs the hook `inferior-ts-mode-hook' \(after the `comint-mode-hook'
+of `ts-comint-program-command').
+Runs the hook `ts-comint-mode-hook' \(after the `comint-mode-hook'
 is run).
 \(Type \\[describe-mode] in the process buffer for a list of commands.)"
   (interactive
@@ -120,23 +120,23 @@ is run).
                          (mapconcat
                           'identity
                           (cons
-                           inferior-ts-program-command
-                           inferior-ts-program-arguments)
+                           ts-comint-program-command
+                           ts-comint-program-arguments)
                           " ")))
-      (setq inferior-ts-program-arguments (split-string cmd))
-      (setq inferior-ts-program-command (pop inferior-ts-program-arguments)))))
+      (setq ts-comint-program-arguments (split-string cmd))
+      (setq ts-comint-program-command (pop ts-comint-program-arguments)))))
 
   (if (not (comint-check-proc "*ts*"))
       (with-current-buffer
-          (apply 'make-comint "ts" inferior-ts-program-command
-                 nil inferior-ts-program-arguments)
-        (inferior-ts-mode)))
-  (setq inferior-ts-buffer "*ts*")
+          (apply 'make-comint "ts" ts-comint-program-command
+                 nil ts-comint-program-arguments)
+        (ts-comint-mode)))
+  (setq ts-comint-buffer "*ts*")
   (if (not dont-switch-p)
       (pop-to-buffer "*ts*"))
 
   ;; apply terminal preferences
-  (if inferior-ts-mode-ansi-color
+  (if ts-comint-mode-ansi-color
       (progn
         ;; based on
         ;; http://stackoverflow.com/questions/13862471/using-node-ts-with-ts-comint-in-emacs
@@ -154,18 +154,18 @@ is run).
 (defun ts-send-region (start end)
   "Send the current region to the inferior Typescript process."
   (interactive "r")
-  (run-ts inferior-ts-program-command t)
-  (comint-send-region inferior-ts-buffer start end)
-  (comint-send-string inferior-ts-buffer "\n"))
+  (run-ts ts-comint-program-command t)
+  (comint-send-region ts-comint-buffer start end)
+  (comint-send-string ts-comint-buffer "\n"))
 
 ;;;###autoload
 (defun ts-send-region-and-go (start end)
   "Send the current region to the inferior Typescript process."
   (interactive "r")
-  (run-ts inferior-ts-program-command t)
-  (comint-send-region inferior-ts-buffer start end)
-  ;; (comint-send-string inferior-ts-buffer "\n")
-  (switch-to-ts inferior-ts-buffer))
+  (run-ts ts-comint-program-command t)
+  (comint-send-region ts-comint-buffer start end)
+  ;; (comint-send-string ts-comint-buffer "\n")
+  (switch-to-ts ts-comint-buffer))
 
 ;;;###autoload
 (defun ts-send-last-sexp-and-go ()
@@ -207,47 +207,47 @@ is run).
   "Load a file in the Typescript interpreter."
   (interactive "f")
   (let ((filename (expand-file-name filename)))
-    (run-ts inferior-ts-program-command t)
-    (comint-send-string inferior-ts-buffer (ts--guess-load-file-cmd filename))))
+    (run-ts ts-comint-program-command t)
+    (comint-send-string ts-comint-buffer (ts--guess-load-file-cmd filename))))
 
 ;;;###autoload
 (defun ts-load-file-and-go (filename)
   "Load a file in the Typescript interpreter."
   (interactive "f")
   (let ((filename (expand-file-name filename)))
-    (run-ts inferior-ts-program-command t)
-    (comint-send-string inferior-ts-buffer (ts--guess-load-file-cmd filename))
-    (switch-to-ts inferior-ts-buffer)))
+    (run-ts ts-comint-program-command t)
+    (comint-send-string ts-comint-buffer (ts--guess-load-file-cmd filename))
+    (switch-to-ts ts-comint-buffer)))
 
 ;;;###autoload
 (defun switch-to-ts (eob-p)
   "Switch to the Typescript process buffer.
 With argument, position cursor at end of buffer."
   (interactive "P")
-  (if (and inferior-ts-buffer (get-buffer inferior-ts-buffer))
-      (pop-to-buffer inferior-ts-buffer)
-    (error "No current process buffer.  See variable `inferior-ts-buffer'"))
+  (if (and ts-comint-buffer (get-buffer ts-comint-buffer))
+      (pop-to-buffer ts-comint-buffer)
+    (error "No current process buffer.  See variable `ts-comint-buffer'"))
   (when eob-p
     (push-mark)
     (goto-char (point-max))))
 
-(defvar inferior-ts-mode-map
+(defvar ts-comint-mode-map
   (let ((m (make-sparse-keymap)))
     (define-key m "\C-x\C-e" 'ts-send-last-sexp)
     (define-key m "\C-cl" 'ts-load-file)
     m))
 
 ;;;###autoload
-(define-derived-mode inferior-ts-mode comint-mode "Inferior Typescript"
+(define-derived-mode ts-comint-mode comint-mode "Inferior Typescript"
   "Major mode for interacting with an inferior Typescript process.
 
 The following commands are available:
-\\{inferior-ts-mode-map}
+\\{ts-comint-mode-map}
 
 A typescript process can be fired up with M-x run-ts.
 
 Customization: Entry to this mode runs the hooks on comint-mode-hook and
-inferior-ts-mode-hook (in that order).
+ts-comint-mode-hook (in that order).
 
 You can send text to the inferior Typescript process from other buffers containing
 Typescript source.
@@ -255,7 +255,7 @@ Typescript source.
     ts-send-region sends the current region to the Typescript process.
 "
   :group 'inferior-ts
-  (use-local-map inferior-ts-mode-map))
+  (use-local-map ts-comint-mode-map))
 
 (provide 'ts-comint)
 ;;; ts-comint.el ends here
