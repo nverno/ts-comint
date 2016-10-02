@@ -105,13 +105,14 @@
 
 ;;;###autoload
 (defun run-ts (cmd &optional dont-switch-p)
-  "Run an inferior Typescript process, input and output via buffer `*ts*'.
-If there is a process already running in `*ts*', switch to that buffer.
-With argument, allows you to edit the command line (default is value
-of `ts-comint-program-command').
-Runs the hook `ts-comint-mode-hook' \(after the `comint-mode-hook'
-is run).
-\(Type \\[describe-mode] in the process buffer for a list of commands.)"
+  "Run an inferior Typescript process, via buffer `*Typescript*'.
+If there is a process already running in `*Typescript*', switch
+to that buffer.  With argument `CMD', allows you to edit the
+command line (default is value of `ts-comint-program-command').
+Runs the hook `ts-comint-mode-hook' \(after the
+`comint-mode-hook' is run).  \(Type \\[describe-mode] in the
+process buffer for a list of commands). Use `DONT-SWITCH-P' to
+prevent switching to the new buffer once created."
   (interactive
    (list
     (when current-prefix-arg
@@ -166,7 +167,6 @@ is run).
   (interactive "r")
   (run-ts ts-comint-program-command t)
   (comint-send-region ts-comint-buffer start end)
-  ;; (comint-send-string ts-comint-buffer "\n")
   (switch-to-ts ts-comint-buffer))
 
 ;;;###autoload
@@ -206,7 +206,7 @@ is run).
 
 ;;;###autoload
 (defun ts-load-file (filename)
-  "Load a file in the Typescript interpreter."
+  "Load file `FILENAME' in the Typescript interpreter."
   (interactive "f")
   (let ((filename (expand-file-name filename)))
     (run-ts ts-comint-program-command t)
@@ -214,7 +214,7 @@ is run).
 
 ;;;###autoload
 (defun ts-load-file-and-go (filename)
-  "Load a file in the Typescript interpreter."
+  "Load file `FILENAME' in the Typescript interpreter."
   (interactive "f")
   (let ((filename (expand-file-name filename)))
     (run-ts ts-comint-program-command t)
@@ -224,7 +224,7 @@ is run).
 ;;;###autoload
 (defun switch-to-ts (eob-p)
   "Switch to the Typescript process buffer.
-With argument, position cursor at end of buffer."
+With argument `EOB-P', position cursor at end of buffer."
   (interactive "P")
   (if (and ts-comint-buffer (get-buffer ts-comint-buffer))
       (pop-to-buffer ts-comint-buffer)
