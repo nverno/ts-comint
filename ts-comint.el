@@ -70,10 +70,12 @@
 
 (defcustom ts-comint-program-command "tsun"
   "Typescript interpreter."
+  :type 'string
   :group 'ts-comint)
 
 (defcustom ts-comint-program-arguments nil
   "List of command line arguments to pass to the Typescript interpreter."
+  :type 'string
   :group 'ts-comint)
 
 (defcustom ts-comint-mode-hook nil
@@ -83,6 +85,7 @@
 
 (defcustom ts-comint-mode-ansi-color t
   "Use ansi-colors for inferior Typescript mode."
+  :type 'boolean
   :group 'ts-comint)
 
 (defvar ts-comint-buffer nil
