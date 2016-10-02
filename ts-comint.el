@@ -231,12 +231,6 @@ With argument, position cursor at end of buffer."
     (push-mark)
     (goto-char (point-max))))
 
-(defvar ts-comint-mode-map
-  (let ((m (make-sparse-keymap)))
-    (define-key m "\C-x\C-e" 'ts-send-last-sexp)
-    (define-key m "\C-cl" 'ts-load-file)
-    m))
-
 ;;;###autoload
 (define-derived-mode ts-comint-mode comint-mode "Inferior Typescript"
   "Major mode for interacting with an inferior Typescript process.
@@ -255,7 +249,12 @@ Typescript source.
     ts-send-region sends the current region to the Typescript process.
 "
   :group 'inferior-ts
-  (use-local-map ts-comint-mode-map))
+  ;; no specific initialization needed.
+  )
+
+(define-key ts-comint-mode-map "\C-x\C-e" 'ts-send-last-sexp)
+(define-key ts-comint-mode-map "\C-xl" 'ts-load-file)
+
 
 (provide 'ts-comint)
 ;;; ts-comint.el ends here
