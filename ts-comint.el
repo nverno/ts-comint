@@ -117,7 +117,7 @@ is run).
    (list
     (when current-prefix-arg
       (setq cmd
-            (read-string "Run js: "
+            (read-string "Run typescript: "
                          (mapconcat
                           'identity
                           (cons
