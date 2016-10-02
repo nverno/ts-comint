@@ -122,18 +122,20 @@ is run).
                           (cons
                            ts-comint-program-command
                            ts-comint-program-arguments)
-                          " ")))
-      (setq ts-comint-program-arguments (split-string cmd))
-      (setq ts-comint-program-command (pop ts-comint-program-arguments)))))
+                          " "))))))
 
-  (if (not (comint-check-proc "*ts*"))
+  (when cmd
+    (setq ts-comint-program-arguments (split-string cmd))
+    (setq ts-comint-program-command (pop ts-comint-program-arguments)))
+
+  (if (not (comint-check-proc "*Typescript*"))
       (with-current-buffer
-          (apply 'make-comint "ts" ts-comint-program-command
+          (apply 'make-comint "Typescript" ts-comint-program-command
                  nil ts-comint-program-arguments)
         (ts-comint-mode)))
-  (setq ts-comint-buffer "*ts*")
+  (setq ts-comint-buffer "*Typescript*")
   (if (not dont-switch-p)
-      (pop-to-buffer "*ts*"))
+      (pop-to-buffer "*Typescript*"))
 
   ;; apply terminal preferences
   (if ts-comint-mode-ansi-color
