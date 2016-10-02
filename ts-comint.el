@@ -145,6 +145,7 @@ is run).
         ;; We like nice colors
         (ansi-color-for-comint-mode-on)
         ;; Deal with some prompt nonsense
+        (make-local-variable 'comint-preoutput-filter-functions)
         (add-to-list
          'comint-preoutput-filter-functions
          (lambda (output)
