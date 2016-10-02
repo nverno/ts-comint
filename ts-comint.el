@@ -92,7 +92,6 @@
   "Prompt for `run-ts'.")
 
 
-;;;###autoload
 (defun ts--is-nodejs ()
   (string= "node"
            (substring-no-properties inferior-ts-program-command -4 nil)))
