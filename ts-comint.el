@@ -115,14 +115,13 @@ is run).
   (interactive
    (list
     (when current-prefix-arg
-      (setq cmd
-            (read-string "Run typescript: "
-                         (mapconcat
-                          'identity
-                          (cons
-                           ts-comint-program-command
-                           ts-comint-program-arguments)
-                          " "))))))
+      (read-string "Run typescript: "
+                   (mapconcat
+                    'identity
+                    (cons
+                     ts-comint-program-command
+                     ts-comint-program-arguments)
+                    " ")))))
 
   (when cmd
     (setq ts-comint-program-arguments (split-string cmd))
