@@ -36,9 +36,12 @@ Insert below code to "~/.emacs.d/init.el",
 #+END_SRC
 
 * Usage
-After installation, do `M-x run-ts` to create a comint buffer with the Typescript interpreter.
+After installation, do `M-x run-ts` to create a comint buffer with the
+Typescript interpreter.
 
-You can add the following couple of lines to your .emacs to take advantage of cool key bindings for sending things to the Typescript interpreter inside of Steve Yegge's most excellent js2-mode.
+You can add the following couple of lines to your .emacs to take
+advantage of cool key bindings for sending things to the Typescript
+interpreter inside of typescript-mode.
 
 #+BEGIN_SRC elisp
 (add-hook 'typescript-mode-hook
