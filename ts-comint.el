@@ -91,20 +91,14 @@
 (defvar ts-comint-buffer nil
   "Name of the inferior Typescript buffer.")
 
-(defvar ts-prompt-regexp "^\\(?:> \\)"
-  "Prompt for `run-ts'.")
 
-
-(defun ts--is-nodejs ()
-  (string= "node"
-           (substring-no-properties ts-comint-program-command -4 nil)))
-
-(defun ts--guess-load-file-cmd (filename)
-  (let ((cmd (concat "require(\"" filename "\")\n")))
-    (when (not (ts--is-nodejs))
-      (setq cmd (concat "load(\"" filename "\")\n")))
-    cmd
-    ))
+(defun ts--get-load-file-cmd (filename)
+  "Generate a Typescript import-statement for `FILENAME'."
+  (concat "import * as "
+          (file-name-base filename)
+          " from \""
+          (file-name-base filename)
+          "\"\n"))
 
 ;;;###autoload
 (defun run-ts (cmd &optional dont-switch-p)
@@ -213,7 +207,7 @@ prevent switching to the new buffer once created."
   (interactive "f")
   (let ((filename (expand-file-name filename)))
     (run-ts ts-comint-program-command t)
-    (comint-send-string ts-comint-buffer (ts--guess-load-file-cmd filename))))
+    (comint-send-string ts-comint-buffer (ts--get-load-file-cmd filename))))
 
 ;;;###autoload
 (defun ts-load-file-and-go (filename)
@@ -221,7 +215,7 @@ prevent switching to the new buffer once created."
   (interactive "f")
   (let ((filename (expand-file-name filename)))
     (run-ts ts-comint-program-command t)
-    (comint-send-string ts-comint-buffer (ts--guess-load-file-cmd filename))
+    (comint-send-string ts-comint-buffer (ts--get-load-file-cmd filename))
     (switch-to-ts ts-comint-buffer)))
 
 ;;;###autoload
