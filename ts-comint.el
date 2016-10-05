@@ -154,16 +154,16 @@ prevent switching to the new buffer once created."
 (defun ts-send-region (start end)
   "Send the current region to the inferior Typescript process."
   (interactive "r")
-  (run-ts ts-comint-program-command t)
-  (comint-send-region ts-comint-buffer start end)
-  (comint-send-string ts-comint-buffer "\n"))
+  (let ((text (buffer-substring-no-properties start end)))
+    (run-ts ts-comint-program-command t)
+    (comint-send-string (get-buffer-process ts-comint-buffer)
+                        (concat text "\n"))))
 
 ;;;###autoload
 (defun ts-send-region-and-go (start end)
   "Send the current region to the inferior Typescript process."
   (interactive "r")
-  (run-ts ts-comint-program-command t)
-  (comint-send-region ts-comint-buffer start end)
+  (ts-send-region start end)
   (switch-to-ts ts-comint-buffer))
 
 ;;;###autoload
