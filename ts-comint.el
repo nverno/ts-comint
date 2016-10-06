@@ -92,7 +92,7 @@
   "Name of the inferior Typescript buffer.")
 
 
-(defun ts--get-load-file-cmd (filename)
+(defun ts-comint--get-load-file-cmd (filename)
   "Generate a Typescript import-statement for `FILENAME'."
   (concat "import * as "
           (file-name-base filename)
@@ -212,7 +212,7 @@ prevent switching to the new buffer once created."
   "Load file `FILENAME' in the Typescript interpreter."
   (interactive "f")
   (let ((filename (expand-file-name filename)))
-     (ts-send-string (ts--get-load-file-cmd filename))))
+     (ts-send-string (ts-comint--get-load-file-cmd filename))))
 
 ;;;###autoload
 (defun ts-load-file-and-go (filename)
