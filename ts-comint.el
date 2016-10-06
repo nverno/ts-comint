@@ -151,13 +151,19 @@ prevent switching to the new buffer once created."
     (setenv "NODE_NO_READLINE" "1")))
 
 ;;;###autoload
+(defun ts-send-string (text)
+  "Send `TEXT' to the inferior Typescript process."
+  (interactive "r")
+  (run-ts ts-comint-program-command t)
+  (comint-send-string (get-buffer-process ts-comint-buffer)
+                      (concat text "\n")))
+
+;;;###autoload
 (defun ts-send-region (start end)
   "Send the current region to the inferior Typescript process."
   (interactive "r")
   (let ((text (buffer-substring-no-properties start end)))
-    (run-ts ts-comint-program-command t)
-    (comint-send-string (get-buffer-process ts-comint-buffer)
-                        (concat text "\n"))))
+    (ts-send-string text)))
 
 ;;;###autoload
 (defun ts-send-region-and-go (start end)
@@ -206,17 +212,14 @@ prevent switching to the new buffer once created."
   "Load file `FILENAME' in the Typescript interpreter."
   (interactive "f")
   (let ((filename (expand-file-name filename)))
-    (run-ts ts-comint-program-command t)
-    (comint-send-string ts-comint-buffer (ts--get-load-file-cmd filename))))
+     (ts-send-string (ts--get-load-file-cmd filename))))
 
 ;;;###autoload
 (defun ts-load-file-and-go (filename)
   "Load file `FILENAME' in the Typescript interpreter."
   (interactive "f")
-  (let ((filename (expand-file-name filename)))
-    (run-ts ts-comint-program-command t)
-    (comint-send-string ts-comint-buffer (ts--get-load-file-cmd filename))
-    (switch-to-ts ts-comint-buffer)))
+  (ts-load-file filename)
+  (switch-to-ts ts-comint-buffer))
 
 ;;;###autoload
 (defun switch-to-ts (eob-p)
