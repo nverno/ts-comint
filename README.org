@@ -24,19 +24,26 @@ your system provides:
 
 * Installation
 
-Currently only download from Github source is available, but
-publishing as a package on MELPA and Marmalade is planned.
+** From MELPA
 
-To use it in its current from, place the ts-comint.el somewhere say "~/mylisp/".
+To install it all you need to do is issue the following command:
 
-Insert below code to "~/.emacs.d/init.el",
+~M-x package-install<RET>ts-comint~
+
+** From Source
+
+You can also download the source and use that directly.
+
+To do that, place the ~ts-comint.el~-file somewhere (say ~$HOME/mylisp/~)
+and then insert the following code in your ~$HOME/.emacs.d/init.el~-file:
+
 #+BEGIN_SRC elisp
 (add-to-list 'load-path "~/mylisp/")
 (require 'ts-comint)
 #+END_SRC
 
 * Usage
-After installation, do `M-x run-ts` to create a comint buffer with the
+After installation, do ~M-x run-ts~ to create a comint buffer with the
 Typescript interpreter.
 
 You can add the following couple of lines to your .emacs to take
