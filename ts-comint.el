@@ -79,7 +79,7 @@
   :group 'ts-comint)
 
 (defcustom ts-comint-mode-hook nil
-  "*Hook for customizing inferior-ts mode."
+  "*Hook for customizing `ts-comint-mode'."
   :type 'hook
   :group 'ts-comint)
 
@@ -250,7 +250,7 @@ Typescript source.
     switch-to-ts switches the current buffer to the Typescript process buffer.
     ts-send-region sends the current region to the Typescript process.
 "
-  :group 'inferior-ts
+  :group 'ts-comint
   ;; no specific initialization needed.
   )
 
