@@ -101,7 +101,7 @@
           "\"\n"))
 
 ;;;###autoload
-(defun run-ts (cmd &optional dont-switch-p)
+(defun run-ts (&optional cmd dont-switch-p)
   "Run an inferior Typescript process, via buffer `*Typescript*'.
 If there is a process already running in `*Typescript*', switch
 to that buffer.  With argument `CMD', allows you to edit the
