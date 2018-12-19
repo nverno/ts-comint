@@ -59,3 +59,15 @@ interpreter inside of typescript-mode.
             (local-set-key (kbd "C-c C-b") 'ts-send-buffer-and-go)
             (local-set-key (kbd "C-c l") 'ts-load-file-and-go)))
 #+END_SRC
+
+* ~repl-toggle~ compatibility
+
+~ts-comint~ is [[https://github.com/tomterl/repl-toggle][~repl-toggle~]] compatible. To configure,  add ~run-ts~
+for ~typescript-mode~ to ~rtog/mode-repl-alist~ like so:
+
+#+BEGIN_SRC elisp
+;; when configuring all repl toggle mapping
+(setq rtog/mode-repl-alist '((typescript-mode . run-ts)))
+;; or later
+(push '(typescript-mode . run-ts) rtog/mode-repl-alist)
+#+END_SRC
