@@ -1,4 +1,4 @@
-;;; ts-comint.el --- Run a Typescript interpreter in an inferior process window.
+;;; ts-comint.el --- Run a Typescript interpreter in an inferior process window.  -*- lexical-binding: t; -*-
 
 ;;; Copyright (C) 2008 Paul Huff
 ;;; Copyright (C) 2015 Stefano Mazzucco
@@ -68,7 +68,7 @@
   "Run a Typescript process in a buffer."
   :group 'languages)
 
-(defcustom ts-comint-program-command "tsun"
+(defcustom ts-comint-program-command "ts-node"
   "Typescript interpreter."
   :type 'string
   :group 'ts-comint)
@@ -170,7 +170,7 @@ prevent switching to the new buffer once created."
   "Send the current region to the inferior Typescript process."
   (interactive "r")
   (ts-send-region start end)
-  (switch-to-ts ts-comint-buffer))
+  (ts-comint-switch-to-ts ts-comint-buffer))
 
 ;;;###autoload
 (defun ts-send-last-sexp-and-go ()
@@ -212,17 +212,17 @@ prevent switching to the new buffer once created."
   "Load file `FILENAME' in the Typescript interpreter."
   (interactive "f")
   (let ((filename (expand-file-name filename)))
-     (ts-send-string (ts-comint--get-load-file-cmd filename))))
+    (ts-send-string (ts-comint--get-load-file-cmd filename))))
 
 ;;;###autoload
 (defun ts-load-file-and-go (filename)
   "Load file `FILENAME' in the Typescript interpreter."
   (interactive "f")
   (ts-load-file filename)
-  (switch-to-ts ts-comint-buffer))
+  (ts-comint-switch-to-ts ts-comint-buffer))
 
 ;;;###autoload
-(defun switch-to-ts (eob-p)
+(defun ts-comint-switch-to-ts (eob-p)
   "Switch to the Typescript process buffer.
 With argument `EOB-P', position cursor at end of buffer."
   (interactive "P")
@@ -233,30 +233,67 @@ With argument `EOB-P', position cursor at end of buffer."
     (push-mark)
     (goto-char (point-max))))
 
+(defvar ts-comint--output-ignore-re
+  (rx bos (group (* (| " " "\t"))
+                 (or "> "
+                     (seq "undefined" (+ (| "\r" "\n")))
+                     (seq "..." (* (| " " "\t")))))
+      (? (group "> ")) eol))
+
+(defun ts-comint--preoutput-filter (string)
+  "Filter empty prompts and \"undefined\" from STRING."
+  (if (string-match ts-comint--output-ignore-re string 0)
+      (substring string (match-end 1))
+    string
+    ;; (replace-regexp-in-string  "" string)
+    ;; (if (string-prefix-p "undefined" string)
+    ;;     (substring string (length "undefined"))
+    ;;   string)
+    ))
+
+(defvar-keymap ts-comint-mode-map
+  "C-x C-e" #'ts-send-last-sexp
+  "C-x l" #'ts-load-file)
+
 ;;;###autoload
 (define-derived-mode ts-comint-mode comint-mode "Inferior Typescript"
   "Major mode for interacting with an inferior Typescript process.
 
+A typescript process can be fired up with \\[run-ts].
+
+Customization: Entry to this mode runs the hooks on `comint-mode-hook' and
+`ts-comint-mode-hook' (in that order).
+
+You can send text to the inferior Typescript process from other buffers
+containing Typescript source.
+    `ts-comint-switch-to-ts' switches the current buffer to the Typescript
+    process buffer.
+    `ts-send-region' sends the current region to the Typescript process.
+
 The following commands are available:
-\\{ts-comint-mode-map}
-
-A typescript process can be fired up with M-x run-ts.
-
-Customization: Entry to this mode runs the hooks on comint-mode-hook and
-ts-comint-mode-hook (in that order).
-
-You can send text to the inferior Typescript process from other buffers containing
-Typescript source.
-    switch-to-ts switches the current buffer to the Typescript process buffer.
-    ts-send-region sends the current region to the Typescript process.
-"
+\\{ts-comint-mode-map}"
   :group 'ts-comint
-  ;; no specific initialization needed.
-  )
-
-(define-key ts-comint-mode-map "\C-x\C-e" 'ts-send-last-sexp)
-(define-key ts-comint-mode-map "\C-xl" 'ts-load-file)
-
+  (setq-local comment-start "//"
+              comment-end ""
+              comment-start-skip "//+ *")
+  (setq-local comint-prompt-regexp "> "
+              comint-process-echoes t
+              comint-highlight-input nil
+              comint-prompt-read-only t
+              comint-scroll-to-bottom-on-input 'this
+              comint-scroll-to-bottom-on-output 'this
+              ;; comint-scroll-show-maximum-output nil
+              ;; comint-output-filter-functions '(ansi-color-process-output)
+              comint-preoutput-filter-functions
+              '(xterm-color-filter ts-comint--preoutput-filter)
+              comint-indirect-setup-function
+              (lambda ()
+                (let ((inhibit-message t)
+                      (message-log-max nil))
+                  (cond ((fboundp 'typescript-ts-mode) (typescript-ts-mode))
+                        ((fboundp 'typescript-mode) (typescript-mode))
+                        (t nil)))))
+  (comint-fontify-input-mode))
 
 (provide 'ts-comint)
 ;;; ts-comint.el ends here
