@@ -66,27 +66,28 @@
 
 (defgroup ts-comint nil
   "Run a Typescript process in a buffer."
-  :group 'languages)
+  :group 'languages
+  :prefix "ts-comint-")
 
 (defcustom ts-comint-program-command "ts-node"
   "Typescript interpreter."
-  :type 'string
-  :group 'ts-comint)
+  :type 'string)
 
 (defcustom ts-comint-program-arguments nil
   "List of command line arguments to pass to the Typescript interpreter."
-  :type 'string
-  :group 'ts-comint)
-
-(defcustom ts-comint-mode-hook nil
-  "*Hook for customizing `ts-comint-mode'."
-  :type 'hook
-  :group 'ts-comint)
+  :type '(repeat string))
 
 (defcustom ts-comint-mode-ansi-color t
   "Use ansi-colors for inferior Typescript mode."
-  :type 'boolean
-  :group 'ts-comint)
+  :type 'boolean)
+
+(defcustom ts-comint-prompt "> "
+  "Top-level prompt used by inferior Typescript process."
+  :type 'string)
+
+(defcustom ts-comint-prompt-continue "..."
+  "Continuation prompt in inferior Typescript process."
+  :type 'string)
 
 (defvar ts-comint-buffer nil
   "Name of the inferior Typescript buffer.")
@@ -99,6 +100,25 @@
           " from \""
           (file-name-base filename)
           "\"\n"))
+
+(defun ts-comint--make-ignored-re (prompt)
+  "Create regexp from PROPMT to match ignored ouput."
+  (rx-to-string
+   `(seq bos (group (* (| " " "\t"))
+                    (or ,prompt
+                        ;; (seq ,ts-comint-prompt-continue (* (| " " "\t")))
+                        (seq "undefined" (+ (| "\r" "\n")))))
+         (? (group ,prompt)) eol)))
+
+(defvar-local ts-comint--ignore-re
+    (ts-comint--make-ignored-re ts-comint-prompt)
+  "Regexp matching output to ignore.")
+
+(defun ts-comint--preoutput-filter (string)
+  "Filter empty prompts and \"undefined\" from STRING."
+  (if (string-match ts-comint--ignore-re string 0)
+      (substring string (match-end 1))
+    string))
 
 ;;;###autoload
 (defun run-ts (&optional cmd dont-switch-p)
@@ -200,7 +220,6 @@ prevent switching to the new buffer once created."
   (interactive)
   (ts-send-region (point-min) (point-max)))
 
-
 ;;;###autoload
 (defun ts-send-buffer-and-go ()
   "Send the buffer to the inferior Typescript process."
@@ -233,25 +252,8 @@ With argument `EOB-P', position cursor at end of buffer."
     (push-mark)
     (goto-char (point-max))))
 
-(defvar ts-comint--output-ignore-re
-  (rx bos (group (* (| " " "\t"))
-                 (or "> "
-                     (seq "undefined" (+ (| "\r" "\n")))
-                     (seq "..." (* (| " " "\t")))))
-      (? (group "> ")) eol))
-
-(defun ts-comint--preoutput-filter (string)
-  "Filter empty prompts and \"undefined\" from STRING."
-  (if (string-match ts-comint--output-ignore-re string 0)
-      (substring string (match-end 1))
-    string
-    ;; (replace-regexp-in-string  "" string)
-    ;; (if (string-prefix-p "undefined" string)
-    ;;     (substring string (length "undefined"))
-    ;;   string)
-    ))
-
 (defvar-keymap ts-comint-mode-map
+  :doc "Keymap in `ts-comint-mode' buffers."
   "C-x C-e" #'ts-send-last-sexp
   "C-x l" #'ts-load-file)
 
@@ -270,13 +272,14 @@ containing Typescript source.
     process buffer.
     `ts-send-region' sends the current region to the Typescript process.
 
-The following commands are available:
-\\{ts-comint-mode-map}"
+Commands:
+\\<ts-comint-mode-map>"
   :group 'ts-comint
   (setq-local comment-start "//"
               comment-end ""
               comment-start-skip "//+ *")
-  (setq-local comint-prompt-regexp "> "
+  (setq-local comint-prompt-regexp ts-comint-prompt
+              ts-comint--ignore-re (ts-comint--make-ignored-re ts-comint-prompt)
               comint-process-echoes t
               comint-highlight-input nil
               comint-prompt-read-only t
