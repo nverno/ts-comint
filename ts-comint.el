@@ -89,9 +89,16 @@
   "Continuation prompt in inferior Typescript process."
   :type 'string)
 
+(defcustom ts-comint-font-lock-enable t
+  "Non-nil to enable input font-locking."
+  :type 'boolean)
+
+
 (defvar ts-comint-buffer nil
   "Name of the inferior Typescript buffer.")
 
+(defvar ts-comint-compilation-regexp-alist
+  '(("^\\s-*\\([^\n:]\\):\\([0-9]+\\):\\([0-9]+\\)" 1 2 3)))
 
 (defun ts-comint--get-load-file-cmd (filename)
   "Generate a Typescript import-statement for `FILENAME'."
@@ -254,6 +261,7 @@ With argument `EOB-P', position cursor at end of buffer."
 
 (defvar-keymap ts-comint-mode-map
   :doc "Keymap in `ts-comint-mode' buffers."
+  "TAB" #'completion-at-point
   "C-x C-e" #'ts-send-last-sexp
   "C-x l" #'ts-load-file)
 
@@ -278,17 +286,20 @@ Commands:
   (setq-local comment-start "//"
               comment-end ""
               comment-start-skip "//+ *")
+
   (setq-local comint-prompt-regexp ts-comint-prompt
               ts-comint--ignore-re (ts-comint--make-ignored-re ts-comint-prompt)
               comint-process-echoes t
-              comint-highlight-input nil
               comint-prompt-read-only t
               comint-scroll-to-bottom-on-input 'this
               comint-scroll-to-bottom-on-output 'this
               ;; comint-scroll-show-maximum-output nil
               ;; comint-output-filter-functions '(ansi-color-process-output)
               comint-preoutput-filter-functions
-              '(xterm-color-filter ts-comint--preoutput-filter)
+              '(xterm-color-filter ts-comint--preoutput-filter))
+
+  ;; Input font-locking
+  (setq-local comint-highlight-input nil
               comint-indirect-setup-function
               (lambda ()
                 (let ((inhibit-message t)
@@ -296,7 +307,15 @@ Commands:
                   (cond ((fboundp 'typescript-ts-mode) (typescript-ts-mode))
                         ((fboundp 'typescript-mode) (typescript-mode))
                         (t nil)))))
-  (comint-fontify-input-mode))
+  (when (and (null comint-use-prompt-regexp)
+             ts-comint-font-lock-enable
+             (or (require 'typescript-ts-mode nil t)
+                 (require 'typescript-mode nil t)))
+    (comint-fontify-input-mode))
+  
+  ;; Errors
+  (setq-local compilation-error-regexp-alist ts-comint-compilation-regexp-alist)
+  (compilation-shell-minor-mode t))
 
 (provide 'ts-comint)
 ;;; ts-comint.el ends here
